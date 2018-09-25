@@ -110,13 +110,19 @@ def main(args):
             results = sess_1.run(output_operate_1.outputs[0], {input_operate_1.outputs[0]: x_in})
             results = np.squeeze(results)
             index = np.argmax(results)
-            outfile.write("{},{},{}\n".format(imagepath, LABELS[index], results[index]))
+
+            # check confidence level, for negative classification
+            fLabel = LABELS[index] if results[index] >= 0.995 else "Unknown"
+            print("Label",LABELS[index],"Confidence:",results[index],"Final Label:", fLabel)
+
+
+            outfile.write("{},{},{},{}\n".format(imagepath, LABELS[index], results[index],fLabel))
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_file", default="model.pb", help="name of file containing trained model")
-    parser.add_argument("--test_data", default="testimages2", help="name of folder containing test images")
+    parser.add_argument("--test_data", default="img", help="name of folder containing test images")
     parser.add_argument("--output_file", default="net_output.txt", help="name of the output file containing the network inference results")
     args = parser.parse_args()
     main(args)

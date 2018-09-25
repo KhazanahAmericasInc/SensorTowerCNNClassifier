@@ -106,7 +106,14 @@ def main(args):
             x_in = np.reshape(x_in, (-1, IMAGESHAPE, IMAGESHAPE, 3))
             results = sess.run(output_operate.outputs[0], {input_operate.outputs[0]: x_in})
             results = np.squeeze(results)
-            cv2.putText(label_img, LABELS[np.argmax(results)], (10, 75), cv2.FONT_HERSHEY_COMPLEX_SMALL, 3, 255, 1, 8, False)
+
+            index = np.argmax(results)
+
+            # check confidence level, for negative classification
+            fLabel = LABELS[index] if results[index] >= 0.995 else "Unknown"
+            print("Label",LABELS[index],"Confidence:",results[index],"Final Label:", fLabel)
+
+            cv2.putText(label_img, fLabel , (10, 75), cv2.FONT_HERSHEY_COMPLEX_SMALL, 3, 255, 1, 8, False)
 
             # Shows a window with the image and the label. Waits for key press
             cv2.imshow('label', label_img)
@@ -117,6 +124,6 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_file", default="model.pb", help="name of file containing trained model")
-    parser.add_argument("--test_data", default="testimages2", help="name of folder containing test images")
+    parser.add_argument("--test_data", default="img", help="name of folder containing test images")
     args = parser.parse_args()
     main(args)
